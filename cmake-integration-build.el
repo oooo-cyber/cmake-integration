@@ -93,16 +93,22 @@ complain in that case."
 `cmake-integration-cmake-configure-with-preset' to configure the project")))
 
 
-(defun ci--save-and-compile-no-completion (target &optional extra-args)
-  "Save the buffer and compile TARGET also passing EXTRA-ARGS.
+(defun ci--send-to-eshell (command)
+  "Switch to Eshell buffer and send COMMAND after detecting prompt."
+  (eshell)
+  (goto-char eshell-last-output-end)
+  (let ((proc (get-buffer-process (current-buffer))))
+    ;; Wait for prompt
+    (while (null (string-match-p "\\(>\\|\\$\\) *$" (buffer-substring-no-properties (point-at-bol) (point))))
+      (accept-process-output proc 0.1))
+    ;; Send command
+    (process-send-string proc (format "%s\n" command))))
 
-See the documentation of `cmake-integration-get-build-command' for the
-EXTRA-ARGS parameter."
+(defun ci--save-and-compile-no-completion (target &optional extra-args)
+  "Save the buffer and compile TARGET also passing EXTRA-ARGS."
   (save-buffer 0)
   (let ((compile-command (ci-get-build-command target extra-args)))
-    (let ((cmd (format "%s\n" compile-command)))
-      (eshell)
-      (comint-send-string (current-buffer) cmd))))
+    (ci--send-to-eshell compile-command)))
 
 
 (defun ci--get-target-type-from-name (target-name all-targets)
