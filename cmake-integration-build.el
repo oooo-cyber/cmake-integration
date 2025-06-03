@@ -108,15 +108,10 @@ complain in that case."
   "Save the buffer and compile TARGET also passing EXTRA-ARGS."
   (interactive)
   (save-buffer 0)
-  (let* ((compile-command (ci-get-build-command target extra-args))
-         (cmd (format "%s\n" compile-command))
-         (eshell-destroy-buffer-when-process-dies t))
-    ;; Force minimal shell to avoid init file issues
-    (let ((explicit-shell-file-name "sh")
-          (shell-file-name "sh")
-          (eshell-source-shells nil))
-      (eshell)
-      (comint-send-string nil cmd))))
+  (let ((compile-command (ci-get-build-command target extra-args)))
+    (vterm)
+    (insert compile-command)
+    (vterm-send-return)))
 
 
 (defun ci--get-target-type-from-name (target-name all-targets)
