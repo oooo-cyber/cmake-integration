@@ -100,7 +100,7 @@ See the documentation of `cmake-integration-get-build-command' for the
 EXTRA-ARGS parameter."
   (save-buffer 0)
   (let ((compile-command (ci-get-build-command target extra-args)))
-    (compile compile-command)))
+    (eshell-command compile-command)))
 
 
 (defun ci--get-target-type-from-name (target-name all-targets)
